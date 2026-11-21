@@ -1,0 +1,1796 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>edu rent</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="index.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        mpesa: {
+                            DEFAULT: '#00A651',
+                            dark: '#008741',
+                            light: '#E6F6EE',
+                            border: '#B3E5CB'
+                        },
+                        brand: {
+                            DEFAULT: '#0F172A',
+                            accent: '#2563EB'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body
+    class="bg-slate-50 text-slate-900 font-sans antialiased min-h-screen flex flex-col selection:bg-mpesa selection:text-white" 
+    class="bg-slate-50 text-slate-900 font-sans antialiased min-h-screen flex flex-col selection:bg-mpesa
+    selection:text-white loading">
+    <!-- Animated Loading Screen -->
+    <div class="loader-screen" id="loaderScreen">
+        <div class="loader-wrap">
+            <h1 style="font-size: 2rem; margin-bottom: 5px;">campusNestKE</h1>
+            <div id="loader" class="loader">
+                <div class="loader-orbit"><span></span></div>
+                <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem;">Welcome Loading ...</p>
+            </div>
+            <div class="grain"></div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <button class="loader-skip" id="skipLoader" type="button">Skip</button>
+        </div>
+    </div>
+    
+    <!-- Header containing Fixed Navbar Layout -->
+    <header class="bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Brand Logo -->
+                <a href="#" onclick="switchAppSurface('public')" class="flex items-center gap-2.5 shrink-0">
+                    <div
+                        class="w-9 h-9 rounded-xl bg-slate-900 flex items-center justify-center text-white font-black text-lg shadow-sm relative">
+                        EDR
+                        <span
+                            class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-mpesa border-2 border-white"></span>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="font-extrabold text-slate-900 tracking-tight text-lg">CampusNest</span>
+                            <span
+                                class="text-[10px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded bg-mpesa-light text-mpesa-dark">KE</span>
+                        </div>
+                        <p class="text-[11px] text-slate-500 leading-none hidden sm:block">JKUAT Juja • KU
+                            Kahawa •
+                            Strathmore</p>
+                    </div>
+                </a>
+
+                <!-- Desktop Navigation Links (Public Homepage) -->
+                <nav id="publicNavLinks" class="hidden lg:flex items-center gap-6 text-sm font-semibold text-slate-600">
+                    <a href="#units" class="hover:text-slate-900 transition-colors">Houses & Cost</a>
+                    <a href="#environment" class="hover:text-slate-900 transition-colors">Environment</a>
+                    <a href="#security" class="hover:text-slate-900 transition-colors">Security</a>
+                    <a href="#utilities" class="hover:text-slate-900 transition-colors">Utilities</a>
+                    <a href="#contact" class="hover:text-slate-900 transition-colors">Contacts & Viewing</a>
+                </nav>
+
+                <!-- Portal Context Pill (Shown when inside Tenant Dashboard) -->
+                <div id="portalNavBadge"
+                    class="hidden lg:flex items-center gap-2 bg-slate-100 border border-slate-200 px-3.5 py-1.5 rounded-full text-xs font-bold text-slate-700">
+                    <span class="w-2 h-2 rounded-full bg-mpesa animate-pulse"></span>
+                    <span>Student Tenant Portal • Active Session</span>
+                </div>
+
+                <!-- LANDLORD LOGIN MODAL -->
+                <div id="landlordLoginModal" class="fixed inset-0 z-[60] hidden items-center justify-center bg-slate-900/75 backdrop-blur-xs p-4">
+                    <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden">
+                        <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-9 h-9 rounded-xl bg-mpesa flex items-center justify-center"><i data-lucide="building-2" class="w-5 h-5"></i></div>
+                                <div><h3 class="font-extrabold text-base">Landlord / Admin Login</h3><p class="text-[11px] text-slate-400">Secure property management access</p></div>
+                            </div>
+                            <button type="button" onclick="closeLandlordLoginModal()" class="text-slate-400 hover:text-white p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
+                        </div>
+                        <form onsubmit="handleLandlordLogin(event)" class="p-6 space-y-4">
+                            <div><label for="landlordLoginEmail" class="block text-xs font-bold text-slate-700 mb-1">Admin Email</label><input id="landlordLoginEmail" type="email" required value="admin@campusnest.co.ke" class="w-full text-sm border border-slate-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-mpesa"></div>
+                            <div><label for="landlordLoginPassword" class="block text-xs font-bold text-slate-700 mb-1">Password</label><input id="landlordLoginPassword" type="password" required value="Landlord2026" class="w-full text-sm border border-slate-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-mpesa"></div>
+                            <button type="submit" class="w-full py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold">Open Landlord Page</button>
+                            <p class="text-[11px] text-center text-slate-500">Demo access: <strong>admin@campusnest.co.ke</strong> / <strong>Landlord2026</strong></p>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Right Action Buttons -->
+                <div class="flex items-center gap-2">
+                    <!-- Logged-Out Actions -->
+                    <div id="headerGuestActions" class="flex items-center gap-2">
+                        <button onclick="openLandlordLoginModal()"
+                            class="hidden md:inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold px-3.5 py-2.5 rounded-xl border border-slate-200 transition-all cursor-pointer">
+                            <i data-lucide="building-2" class="w-4 h-4 text-slate-700"></i>
+                            <span>Landlord Login</span>
+                        </button>
+                        <button onclick="openAuthModal('login', 'vacancy')"
+                            class="hidden sm:inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold px-3.5 py-2.5 rounded-xl transition-all cursor-pointer">
+                            <i data-lucide="door-open" class="w-4 h-4 text-mpesa-dark"></i>
+                            <span>Book Vacancy</span>
+                        </button>
+                        <button onclick="openAuthModal('login', 'overview')"
+                            class="inline-flex items-center gap-2 bg-mpesa hover:bg-mpesa-dark active:scale-[0.99] text-white text-xs sm:text-sm font-bold px-3.5 sm:px-4 py-2.5 rounded-xl shadow-sm transition-all cursor-pointer">
+                            <i data-lucide="user-check" class="w-4 h-4"></i>
+                            <span>Tenant Login / Sign Up</span>
+                        </button>
+                    </div>
+
+                    <!-- Logged-In Actions -->
+                    <div id="headerTenantActions" class="hidden items-center gap-2">
+                        <button id="toggleSurfaceBtn" onclick="toggleAppSurface()"
+                            class="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-3.5 py-2.5 rounded-xl shadow-sm transition-all cursor-pointer">
+                            <i data-lucide="layout-dashboard" class="w-4 h-4 text-mpesa"></i>
+                            <span id="toggleSurfaceBtnLabel">My Tenant Portal</span>
+                        </button>
+                        <button onclick="logoutTenant()" title="Log Out"
+                            class="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-red-50 hover:text-red-600 text-slate-700 text-xs font-bold px-3 py-2.5 rounded-xl border border-slate-200 transition-colors cursor-pointer">
+                            <i data-lucide="log-out" class="w-4 h-4"></i>
+                            <span class="hidden sm:inline">Logout</span>
+                        </button>
+                    </div>
+
+                    <!-- Mobile Menu Toggle -->
+                    <button id="mobileMenuBtn" onclick="toggleMobileMenu()" aria-label="Toggle Menu"
+                        class="lg:hidden p-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-100">
+                        <i data-lucide="menu" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Dropdown Navigation -->
+            <div id="mobileMenu" class="hidden lg:hidden pb-4 pt-2 border-t border-slate-100 space-y-1">
+                <button onclick="toggleMobileMenu(); openLandlordLoginModal()"
+                    class="w-full text-left px-3 py-2 rounded-lg text-sm font-bold text-slate-800 bg-slate-100">Landlord Login →</button>
+                <a href="#units" onclick="switchAppSurface('public'); toggleMobileMenu()"
+                    class="block px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-100">Houses
+                    &
+                    Unit Pricing</a>
+                <a href="#environment" onclick="switchAppSurface('public'); toggleMobileMenu()"
+                    class="block px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-100">Campus
+                    Environment</a>
+                <a href="#security" onclick="switchAppSurface('public'); toggleMobileMenu()"
+                    class="block px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-100">24/7
+                    Security</a>
+                <a href="#utilities" onclick="switchAppSurface('public'); toggleMobileMenu()"
+                    class="block px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-100">Utilities
+                    (Wi-Fi & Water)</a>
+                <a href="#contact" onclick="switchAppSurface('public'); toggleMobileMenu()"
+                    class="block px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-100">Caretaker
+                    Contacts & Viewing</a>
+                <button onclick="toggleMobileMenu(); handleBookVacancyEntry()"
+                    class="w-full text-left px-3 py-2 rounded-lg text-sm font-bold text-mpesa-dark bg-mpesa-light/60">Book
+                    Vacant Room / Student Portal →</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Toast Notification Container -->
+        <div id="toastContainer"
+            class="fixed top-20 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0">
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- SURFACE A: PUBLIC HOMEPAGE VIEW                           -->
+        <!-- ========================================================= -->
+        <main id="publicHomepageView" class="flex-1">
+            <!-- ========================================================= -->
+            <!-- 2. HERO SECTION                                           -->
+            <!-- ========================================================= -->
+            <section class="relative bg-slate-900 text-white overflow-hidden">
+                <!-- Decorative subtle background grid -->
+                <div class="absolute inset-0 opacity-10"
+                    style="background-image: radial-gradient(#1669dd 1px, transparent 1px); background-size: 24px 24px;">
+                </div>
+                <div class="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-mpesa/20 blur-3xl pointer-events-none">
+                </div>
+
+                <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+                        <!-- Left Hero Copy -->
+                        <div class="lg:col-span-7 space-y-6">
+                            <div
+                                class="inline-flex flex-wrap items-center gap-2 bg-slate-800/90 border border-slate-700 px-3.5 py-1.5 rounded-full text-xs font-semibold text-slate-200">
+                                <span class="w-2 h-2 rounded-full bg-mpesa animate-pulse"></span>
+                                <span>2026/2027 Academic Intake Open • Zero Viewing Fees</span>
+                            </div>
+
+                            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-[1.15]">
+                                Safe, Modern Student Housing <span class="text-mpesa">15 Mins from Campus
+                                    Gate.</span>
+                            </h1>
+
+                            <p class="text-slate-300 text-base sm:text-lg leading-relaxed max-w-2xl">
+                                Verified hostels & apartments near <strong class="text-white">JKUAT (Juja Gate
+                                    C)</strong>
+                                and <strong class="text-white">Kenyatta University (Kahawa Wendani)</strong>.
+                                Enjoy 24/7
+                                borehole water, free high-speed fiber Wi-Fi, biometric security, and instant
+                                M-Pesa rent
+                                &
+                                semester booking.
+                            </p>
+
+                            <!-- Hero CTA Buttons -->
+                            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
+                                <button onclick="handleBookVacancyEntry()"
+                                    class="inline-flex items-center justify-center gap-2 bg-mpesa hover:bg-mpesa-dark text-white font-bold px-6 py-3.5 rounded-xl shadow-lg shadow-mpesa/20 transition-all text-sm sm:text-base cursor-pointer">
+                                    <i data-lucide="key-round" class="w-4 h-4"></i>
+                                    <span>Book Vacant Room / Bed Now</span>
+                                </button>
+                                <a href="#units"
+                                    class="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/15 border border-white/20 text-white font-semibold px-6 py-3.5 rounded-xl transition-all text-sm sm:text-base">
+                                    <span>Compare Unit Costs</span>
+                                    <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                                </a>
+                                <a href="#contact"
+                                    class="inline-flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/15 text-slate-200 font-semibold px-5 py-3.5 rounded-xl transition-all text-sm sm:text-base">
+                                    <i data-lucide="calendar" class="w-4 h-4 text-mpesa"></i>
+                                    <span>Free Viewing</span>
+                                </a>
+                            </div>
+
+                            <!-- Trust Metrics Row -->
+                            <div class="grid grid-cols-3 gap-4 pt-6 border-t border-slate-800 max-w-lg">
+                                <div>
+                                    <p class="text-xl sm:text-2xl font-extrabold text-white">450m</p>
+                                    <p class="text-xs text-slate-400">Walk to Campus Gate</p>
+                                </div>
+                                <div>
+                                    <p class="text-xl sm:text-2xl font-extrabold text-mpesa">100%</p>
+                                    <p class="text-xs text-slate-400">24/7 Borehole Water</p>
+                                </div>
+                                <div>
+                                    <p class="text-xl sm:text-2xl font-extrabold text-white">Instant</p>
+                                    <p class="text-xs text-slate-400">Parent M-Pesa Receipts</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Hero Visual Card (Interactive Property Preview) -->
+                        <div class="lg:col-span-5">
+                            <div
+                                class="bg-slate-800/90 border border-slate-700 rounded-2xl p-4 sm:p-5 shadow-2xl space-y-4">
+                                <div class="relative rounded-xl overflow-hidden bg-slate-700 aspect-16/10">
+                                    <img src="https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&w=900&q=80"
+                                        onerror="this.src='https://placehold.co/800x500/1e293b/00A651?text=CampusNest+Student+Hostels'"
+                                        alt="Modern Student Apartment Building" class="w-full h-full object-cover">
+                                    <div
+                                        class="absolute top-3 left-3 flex items-center gap-1.5 bg-slate-900/85 backdrop-blur-xs text-white text-xs font-bold px-3 py-1 rounded-full">
+                                        <span class="w-2 h-2 rounded-full bg-mpesa"></span>
+                                        <span>14 Units Available for Intake</span>
+                                    </div>
+                                    <div
+                                        class="absolute bottom-3 right-3 bg-mpesa text-white text-xs font-extrabold px-3 py-1 rounded-lg shadow">
+                                        From KES 4,500 / mo
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between text-xs text-slate-300 px-1">
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-bold text-white">Paybill: 4092184</span>
+                                        <span class="text-slate-600">•</span>
+                                        <span>HELB & Parent Friendly</span>
+                                    </div>
+                                    <button onclick="openChatWithPrompt('How do parents pay via M-Pesa?')"
+                                        class="text-mpesa font-bold hover:underline cursor-pointer">
+                                        Ask AI Guide →
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================================= -->
+            <!-- 3. HOUSES & UNIT COST SECTION                             -->
+            <!-- ========================================================= -->
+            <section id="units" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16">
+                <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8">
+                    <div>
+                        <span
+                            class="text-xs font-extrabold uppercase tracking-wider text-mpesa-dark bg-mpesa-light px-3 py-1 rounded-full">Transparent
+                            Student Rates</span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-3">Houses & Cost of
+                            Units</h2>
+                        <p class="text-sm sm:text-base text-slate-600 mt-1 max-w-2xl">
+                            Choose between flexible monthly rent or discounted 4-month semester packages. All
+                            units
+                            include
+                            free Wi-Fi, water, and garbage collection.
+                        </p>
+                    </div>
+
+                    <!-- Billing Cycle Toggle + Location Filter -->
+                    <div class="flex flex-wrap items-center gap-3">
+                        <!-- Billing Toggle -->
+                        <div class="inline-flex p-1 bg-slate-200/80 rounded-xl border border-slate-200">
+                            <button id="billMonthlyBtn" onclick="setBillingCycle('monthly')"
+                                class="px-3.5 py-2 rounded-lg text-xs font-bold bg-white text-slate-900 shadow-sm transition-all cursor-pointer">
+                                Monthly Billing
+                            </button>
+                            <button id="billSemesterBtn" onclick="setBillingCycle('semester')"
+                                class="px-3.5 py-2 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 transition-all cursor-pointer">
+                                Semester (Save ~8%)
+                            </button>
+                        </div>
+
+                        <!-- Campus Filter -->
+                        <select id="campusFilter" onchange="renderUnitCards()"
+                            class="text-xs font-bold bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-700 focus:outline-none focus:border-mpesa">
+                            <option value="ALL">All Campuses (Juja & KU)</option>
+                            <option value="JKUAT">JKUAT — Juja Gate C</option>
+                            <option value="KU">KU — Kahawa Wendani</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 4 Unit Cards Grid -->
+                <div id="unitCardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Populated dynamically by JS -->
+                </div>
+
+                <!-- Deposit & Fee Transparency Note -->
+                <div
+                    class="mt-8 bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs text-slate-600">
+                    <div class="flex items-start sm:items-center gap-3">
+                        <div
+                            class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <p>
+                            <strong class="text-slate-900">Move-In Policy:</strong> Refundable security deposit
+                            equals 1
+                            month's rent + one-time KES 500 smart-gate access card fee. <strong
+                                class="text-mpesa-dark">KES
+                                0 agent/viewing fees.</strong>
+                        </p>
+                    </div>
+                    <button onclick="openChatWithPrompt('Break down the move-in deposit for a bedsitter')"
+                        class="text-mpesa-dark font-bold hover:underline shrink-0 text-left sm:text-right cursor-pointer">
+                        Calculate Move-In Cost with AI →
+                    </button>
+                </div>
+            </section>
+
+            <!-- ========================================================= -->
+            <!-- 4. ENVIRONMENT & STUDY ATMOSPHERE SECTION                 -->
+            <!-- ========================================================= -->
+            <section id="environment" class="bg-white border-y border-slate-200 py-14 sm:py-16">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="max-w-2xl mb-10">
+                        <span
+                            class="text-xs font-extrabold uppercase tracking-wider text-blue-700 bg-blue-50 px-3 py-1 rounded-full">Campus
+                            Lifestyle & Study Focus</span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-3">Conducive Study
+                            Environment
+                            &
+                            Neighborhood</h2>
+                        <p class="text-sm sm:text-base text-slate-600 mt-1">
+                            Designed for academic success—away from noisy bars and clubs, yet steps away from
+                            lecture
+                            halls,
+                            cyber cafes, and affordable student eateries.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <!-- Env Card 1 -->
+                        <div
+                            class="rounded-2xl border border-slate-200 p-5 bg-slate-50/60 hover:bg-white hover:shadow-md transition-all">
+                            <div
+                                class="w-11 h-11 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center mb-4">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                </svg>
+                            </div>
+                            <h3 class="font-bold text-slate-900 text-base">Quiet Study Zones & Rooftop</h3>
+                            <p class="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
+                                Strict noise-control policy after 10:00 PM plus a shaded rooftop study terrace
+                                with
+                                power
+                                sockets for group discussions and exam prep.
+                            </p>
+                        </div>
+
+                        <!-- Env Card 2 -->
+                        <div
+                            class="rounded-2xl border border-slate-200 p-5 bg-slate-50/60 hover:bg-white hover:shadow-md transition-all">
+                            <div
+                                class="w-11 h-11 rounded-xl bg-mpesa-light text-mpesa-dark flex items-center justify-center mb-4">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </div>
+                            <h3 class="font-bold text-slate-900 text-base">5-Min Lit Walk to Gate</h3>
+                            <p class="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
+                                Cabro-paved, solar-streetlit access road straight to JKUAT Gate C & KU Kahawa
+                                Wendani
+                                footbridge—safe even after evening library sessions.
+                            </p>
+                        </div>
+
+                        <!-- Env Card 3 -->
+                        <div
+                            class="rounded-2xl border border-slate-200 p-5 bg-slate-50/60 hover:bg-white hover:shadow-md transition-all">
+                            <div
+                                class="w-11 h-11 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center mb-4">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                            </div>
+                            <h3 class="font-bold text-slate-900 text-base">Supermarkets & Eateries</h3>
+                            <p class="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
+                                2 minutes from Quickmart/Naivas outlets, fresh mama mboga stalls, affordable
+                                student
+                                cafeterias, printing bureaus, and Thika Superhighway matatu stage.
+                            </p>
+                        </div>
+
+                        <!-- Env Card 4 -->
+                        <div
+                            class="rounded-2xl border border-slate-200 p-5 bg-slate-50/60 hover:bg-white hover:shadow-md transition-all">
+                            <div
+                                class="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-4">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                                </svg>
+                            </div>
+                            <h3 class="font-bold text-slate-900 text-base">Clean & Tiled Compound</h3>
+                            <p class="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
+                                Daily cleaning of staircases and corridors, zero mud during rainy seasons,
+                                spacious
+                                balconies, and dedicated motorbike/bicycle parking racks.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================================= -->
+            <!-- 5 & 6. SECURITY + UTILITIES SPLIT SECTION                 -->
+            <!-- ========================================================= -->
+            <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+                    <!-- 5. SECURITY CARD -->
+                    <div id="security"
+                        class="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl flex flex-col justify-between">
+                        <div>
+                            <div
+                                class="inline-flex items-center gap-2 bg-slate-800 border border-slate-700 px-3 py-1 rounded-full text-xs font-bold text-mpesa mb-4">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                </svg>
+                                <span>Parent-Trusted Safety Standards</span>
+                            </div>
+                            <h2 class="text-2xl sm:text-3xl font-extrabold">24/7 Multi-Layer Security</h2>
+                            <p class="text-slate-300 text-sm mt-2 leading-relaxed">
+                                Your safety—and your laptop's safety—is our top priority. Every block is
+                                monitored round
+                                the
+                                clock.
+                            </p>
+
+                            <ul class="mt-6 space-y-4 text-sm">
+                                <li class="flex items-start gap-3">
+                                    <span
+                                        class="w-6 h-6 rounded-full bg-mpesa/20 text-mpesa flex items-center justify-center shrink-0 mt-0.5 font-bold">✓</span>
+                                    <div>
+                                        <p class="font-bold text-white">Biometric & Smart-Card Gate Access</p>
+                                        <p class="text-xs text-slate-400">Only registered tenants can unlock the
+                                            main
+                                            pedestrian turnstile; all visitors sign in with National ID.</p>
+                                    </div>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <span
+                                        class="w-6 h-6 rounded-full bg-mpesa/20 text-mpesa flex items-center justify-center shrink-0 mt-0.5 font-bold">✓</span>
+                                    <div>
+                                        <p class="font-bold text-white">24/7 Uniformed Guards & Night Patrols
+                                        </p>
+                                        <p class="text-xs text-slate-400">Vetted day and night security
+                                            personnel
+                                            stationed
+                                            at the gate with direct emergency radio link.</p>
+                                    </div>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <span
+                                        class="w-6 h-6 rounded-full bg-mpesa/20 text-mpesa flex items-center justify-center shrink-0 mt-0.5 font-bold">✓</span>
+                                    <div>
+                                        <p class="font-bold text-white">HD CCTV Surveillance & Electric
+                                            Perimeter Fence
+                                        </p>
+                                        <p class="text-xs text-slate-400">24-hour night-vision cameras covering
+                                            all
+                                            corridors, entrances, and laundry areas plus energized perimeter
+                                            wall.</p>
+                                    </div>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <span
+                                        class="w-6 h-6 rounded-full bg-mpesa/20 text-mpesa flex items-center justify-center shrink-0 mt-0.5 font-bold">✓</span>
+                                    <div>
+                                        <p class="font-bold text-white">No Arbitrary Curfew (24/7 Student
+                                            Access)</p>
+                                        <p class="text-xs text-slate-400">Come back from late library/lab
+                                            sessions
+                                            anytime
+                                            using your biometric tag; strict visitor sign-out at 10:00 PM.</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div
+                            class="mt-8 pt-4 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+                            <span>300m from Local Administration Police Post</span>
+                            <span class="text-mpesa font-bold">Zero Break-In Record</span>
+                        </div>
+                    </div>
+
+                    <!-- 6. UTILITIES & AMENITIES CARD -->
+                    <div id="utilities"
+                        class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div
+                                class="inline-flex items-center gap-2 bg-mpesa-light text-mpesa-dark px-3 py-1 rounded-full text-xs font-bold mb-4">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                                <span>All Essential Utilities Ready</span>
+                            </div>
+                            <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Reliable Utilities &
+                                Amenities
+                            </h2>
+                            <p class="text-slate-600 text-sm mt-2 leading-relaxed">
+                                Say goodbye to carrying jerrycans up stairs or buffering during online CATs.
+                                Everything
+                                works out of the box.
+                            </p>
+
+                            <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <!-- Utility 1 -->
+                                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
+                                    <div class="flex items-center justify-between mb-1.5">
+                                        <span class="font-bold text-slate-900 text-sm">High-Speed Fiber
+                                            Wi-Fi</span>
+                                        <span
+                                            class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-mpesa-light text-mpesa-dark">Included</span>
+                                    </div>
+                                    <p class="text-xs text-slate-600">Dedicated routers on every floor (50 Mbps
+                                        shared)
+                                        ideal for Zoom lectures, coding & research.</p>
+                                </div>
+
+                                <!-- Utility 2 -->
+                                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
+                                    <div class="flex items-center justify-between mb-1.5">
+                                        <span class="font-bold text-slate-900 text-sm">24/7 Borehole + County
+                                            Water</span>
+                                        <span
+                                            class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-mpesa-light text-mpesa-dark">Included</span>
+                                    </div>
+                                    <p class="text-xs text-slate-600">50,000-litre overhead & underground
+                                        reserve tanks
+                                        ensuring constant tap water every day.</p>
+                                </div>
+
+                                <!-- Utility 3 -->
+                                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
+                                    <div class="flex items-center justify-between mb-1.5">
+                                        <span class="font-bold text-slate-900 text-sm">Individual KPLC
+                                            Tokens</span>
+                                        <span
+                                            class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-blue-50 text-blue-700">Prepaid</span>
+                                    </div>
+                                    <p class="text-xs text-slate-600">Every unit has its own independent KPLC
+                                        token
+                                        meter—control and top up only what you consume.</p>
+                                </div>
+
+                                <!-- Utility 4 -->
+                                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
+                                    <div class="flex items-center justify-between mb-1.5">
+                                        <span class="font-bold text-slate-900 text-sm">Laundry & Garbage</span>
+                                        <span
+                                            class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-mpesa-light text-mpesa-dark">Included</span>
+                                    </div>
+                                    <p class="text-xs text-slate-600">Covered rooftop drying lines with rain
+                                        shelter,
+                                        washing basins, and twice-weekly garbage pickup.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            class="mt-8 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+                            <span>Strong Safaricom & Airtel 5G Indoor Reception</span>
+                            <span class="font-semibold text-slate-800">Backup Solar Corridor Lighting</span>
+                        </div>
+                    </div>
+
+
+                </div>
+            </section>
+
+        </main>
+        <!-- END SURFACE A: PUBLIC HOMEPAGE VIEW -->
+
+
+        <!-- ========================================================= -->
+        <!-- SURFACE B: FULL STUDENT TENANT PORTAL DASHBOARD           -->
+        <!-- ========================================================= -->
+        <section id="tenantDashboardView"
+            class="hidden flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+
+            <!-- Top Tenant Context Banner -->
+            <div
+                class="bg-slate-900 text-white rounded-3xl p-5 sm:p-6 mb-6 shadow-lg flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div class="flex items-start sm:items-center gap-4">
+                    <div id="tenantAvatarBadge"
+                        class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-mpesa text-white font-black text-lg sm:text-xl flex items-center justify-center shrink-0 shadow">
+                        FW
+                    </div>
+                    <div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <h1 id="dashTenantName" class="text-lg sm:text-2xl font-extrabold tracking-tight">
+                                Faith
+                                Wanjiku
+                            </h1>
+                            <span id="dashTenantStatusPill"
+                                class="text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-mpesa/20 text-mpesa border border-mpesa/30">
+                                Active Lease
+                            </span>
+                        </div>
+                        <p id="dashTenantMeta" class="text-xs sm:text-sm text-slate-300 mt-1">
+                            Reg: <span class="font-mono text-white">SCT221-0418/2024</span> • JKUAT Juja (Gate
+                            C) •
+                            <strong class="text-mpesa">Unit B-14 (En-Suite Bedsitter)</strong>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2.5">
+                    <button onclick="switchAppSurface('public')"
+                        class="inline-flex items-center gap-1.5 bg-white/10 hover:bg-white/15 border border-white/15 text-white text-xs font-bold px-3.5 py-2.5 rounded-xl transition-colors cursor-pointer">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                        <span>Back to Public Homepage</span>
+                    </button>
+                    <button onclick="switchTenantTab('payments')"
+                        class="inline-flex items-center gap-1.5 bg-mpesa hover:bg-mpesa-dark text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow transition-colors cursor-pointer">
+                        <i data-lucide="smartphone" class="w-4 h-4"></i>
+                        <span>Pay Rent via M-Pesa</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Portal Layout: Left Sidebar Navigation + Main Content Panel -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+                <!-- Sidebar / Horizontal Mobile Tabs (3 cols) -->
+                <aside
+                    class="lg:col-span-3 bg-white border border-slate-200 rounded-2xl p-2.5 shadow-2xs sticky top-20 z-20">
+                    <nav class="flex lg:flex-col gap-1.5 overflow-x-auto no-scrollbar" aria-label="Tenant Portal Tabs">
+                        <button id="tTab-overview" onclick="switchTenantTab('overview')"
+                            class="tenant-tab-btn shrink-0 flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-slate-900 text-white transition-all cursor-pointer">
+                            <i data-lucide="layout-dashboard" class="w-4 h-4 text-mpesa"></i>
+                            <span>Dashboard Overview</span>
+                        </button>
+                        <button id="tTab-vacancy" onclick="switchTenantTab('vacancy')"
+                            class="tenant-tab-btn shrink-0 flex items-center justify-between gap-2.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-100 transition-all cursor-pointer">
+                            <span class="flex items-center gap-2.5">
+                                <i data-lucide="door-open" class="w-4 h-4 text-mpesa-dark"></i>
+                                <span>Book Vacancy</span>
+                            </span>
+                            <span id="sidebarVacantCountBadge"
+                                class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-mpesa-light text-mpesa-dark">8
+                                Open</span>
+                        </button>
+                        <button id="tTab-payments" onclick="switchTenantTab('payments')"
+                            class="tenant-tab-btn shrink-0 flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-100 transition-all cursor-pointer">
+                            <i data-lucide="wallet" class="w-4 h-4 text-mpesa-dark"></i>
+                            <span>M-Pesa Payments</span>
+                        </button>
+                        <button id="tTab-receipts" onclick="switchTenantTab('receipts')"
+                            class="tenant-tab-btn shrink-0 flex items-center justify-between gap-2.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-100 transition-all cursor-pointer">
+                            <span class="flex items-center gap-2.5">
+                                <i data-lucide="receipt" class="w-4 h-4 text-blue-600"></i>
+                                <span>Official Receipts</span>
+                            </span>
+                            <span id="sidebarReceiptCountBadge"
+                                class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">3</span>
+                        </button>
+                        <button id="tTab-complaints" onclick="switchTenantTab('complaints')"
+                            class="tenant-tab-btn shrink-0 flex items-center justify-between gap-2.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-100 transition-all cursor-pointer">
+                            <span class="flex items-center gap-2.5">
+                                <i data-lucide="wrench" class="w-4 h-4 text-amber-600"></i>
+                                <span>Complaints & Repairs</span>
+                            </span>
+                            <span id="sidebarTicketCountBadge"
+                                class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">2</span>
+                        </button>
+                        <button id="tTab-management" onclick="switchTenantTab('management')"
+                            class="tenant-tab-btn shrink-0 flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-100 transition-all cursor-pointer">
+                            <i data-lucide="sliders-horizontal" class="w-4 h-4 text-slate-700"></i>
+                            <span>Manage Dashboard & Database</span>
+                        </button>
+                    </nav>
+
+                    <!-- Caretaker Quick Emergency Card (Desktop) -->
+                    <div class="hidden lg:block mt-4 pt-4 border-t border-slate-100 px-2 space-y-2.5">
+                        <p class="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">On-Site
+                            Support
+                        </p>
+                        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 text-xs space-y-1">
+                            <p class="font-bold text-slate-900">Caretaker: Mr. J. Mwangi</p>
+                            <p class="text-slate-500">Gate C Block • 24/7 Emergency</p>
+                            <a href="tel:+254712345678"
+                                class="inline-flex items-center gap-1.5 text-mpesa-dark font-bold pt-1 hover:underline">
+                                <i data-lucide="phone-call" class="w-3.5 h-3.5"></i>
+                                <span>0712 345 678</span>
+                            </a>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Main Portal Tab Views (9 cols) -->
+                <div class="lg:col-span-9 space-y-6">
+
+                    <!-- ================================================= -->
+                    <!-- TAB 1: OVERVIEW TAB                               -->
+                    <!-- ================================================= -->
+                    <div id="tenantPanel-overview" class="tenant-panel space-y-6">
+                        <!-- Top 3 KPI Summary Cards -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <!-- Balance Card -->
+                            <div
+                                class="bg-white border border-slate-200 rounded-2xl p-5 shadow-2xs flex flex-col justify-between">
+                                <div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Current
+                                            Rent
+                                            & Utilities Balance</span>
+                                        <span id="ovBalanceBadge"
+                                            class="text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">Balance
+                                            Due</span>
+                                    </div>
+                                    <p id="ovBalanceAmount" class="text-2xl sm:text-3xl font-black text-slate-900 mt-2">
+                                        KES
+                                        4,500</p>
+                                    <p id="ovBalanceSub" class="text-xs text-slate-500 mt-1">November 2026 Rent
+                                        + Water
+                                        •
+                                        Due 5th</p>
+                                </div>
+                                <button onclick="switchTenantTab('payments')"
+                                    class="mt-4 w-full py-2.5 px-4 rounded-xl bg-mpesa hover:bg-mpesa-dark text-white text-xs font-bold transition-colors flex items-center justify-center gap-2 cursor-pointer">
+                                    <i data-lucide="smartphone" class="w-4 h-4"></i>
+                                    <span>Pay Now via M-Pesa</span>
+                                </button>
+                            </div>
+
+                            <!-- Active Lease & Room Card -->
+                            <div
+                                class="bg-white border border-slate-200 rounded-2xl p-5 shadow-2xs flex flex-col justify-between">
+                                <div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Assigned
+                                            Room / Bed</span>
+                                        <span
+                                            class="text-[11px] font-bold text-mpesa-dark bg-mpesa-light px-2 py-0.5 rounded-full">Verified</span>
+                                    </div>
+                                    <p id="ovRoomTitle" class="text-lg font-extrabold text-slate-900 mt-2">Block
+                                        B •
+                                        Unit
+                                        B-14</p>
+                                    <p id="ovRoomType" class="text-xs text-slate-600 mt-0.5">Modern En-Suite
+                                        Bedsitter
+                                        (Monthly)</p>
+                                    <div class="mt-3 pt-3 border-t border-slate-100 text-xs space-y-1 text-slate-600">
+                                        <p>Account Ref: <strong id="ovAccountRef"
+                                                class="font-mono text-slate-900">JJA-B14</strong></p>
+                                        <p>Monthly Rate: <strong id="ovMonthlyRate" class="text-slate-900">KES
+                                                8,500 /
+                                                mo</strong></p>
+                                    </div>
+                                </div>
+                                <button onclick="switchTenantTab('vacancy')"
+                                    class="mt-3 text-xs font-bold text-blue-600 hover:underline text-left cursor-pointer">
+                                    Book Another Room / Upgrade →
+                                </button>
+                            </div>
+
+                            <!-- Utilities & Wi-Fi Access Card -->
+                            <div
+                                class="bg-white border border-slate-200 rounded-2xl p-5 shadow-2xs flex flex-col justify-between">
+                                <div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Room
+                                            Utilities & Access</span>
+                                        <i data-lucide="wifi" class="w-4 h-4 text-mpesa"></i>
+                                    </div>
+                                    <div class="mt-3 space-y-2.5 text-xs">
+                                        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/70">
+                                            <p class="text-slate-400 text-[11px]">Floor 50Mbps Fiber Wi-Fi</p>
+                                            <p class="font-mono font-bold text-slate-900 mt-0.5">CampusNest_B2 •
+                                                <span class="text-mpesa-dark">JKUAT@2026</span>
+                                            </p>
+                                        </div>
+                                        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/70">
+                                            <p class="text-slate-400 text-[11px]">KPLC Prepaid Token Meter</p>
+                                            <p id="ovMeterNumber" class="font-mono font-bold text-slate-900 mt-0.5">
+                                                3720-8841-904</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="text-[11px] text-slate-500 mt-3">Biometric Gate Tag: <strong
+                                        class="text-emerald-700">Active (24/7)</strong></p>
+                            </div>
+                        </div>
+
+                        <!-- Recent Receipts & Active Tickets Split -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <!-- Recent Payments -->
+                            <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-2xs">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="font-extrabold text-slate-900 text-base">Recent M-Pesa Payments
+                                    </h3>
+                                    <button onclick="switchTenantTab('receipts')"
+                                        class="text-xs font-bold text-mpesa-dark hover:underline cursor-pointer">All
+                                        Receipts →</button>
+                                </div>
+                                <div id="ovRecentPaymentsList" class="space-y-2.5">
+                                    <!-- Populated by JS -->
+                                </div>
+                            </div>
+
+                            <!-- Active Maintenance / Complaints -->
+                            <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-2xs">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="font-extrabold text-slate-900 text-base">Caretaker & Landlord
+                                        Tickets
+                                    </h3>
+                                    <button onclick="switchTenantTab('complaints')"
+                                        class="text-xs font-bold text-amber-700 hover:underline cursor-pointer">+
+                                        New
+                                        Ticket
+                                        →</button>
+                                </div>
+                                <div id="ovRecentTicketsList" class="space-y-2.5">
+                                    <!-- Populated by JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- ================================================= -->
+                    <!-- TAB 2: BOOK VACANCY TAB (ROOMS & BED SPACES)      -->
+                    <!-- ================================================= -->
+                    <div id="tenantPanel-vacancy" class="tenant-panel hidden space-y-6">
+                        <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-2xs">
+                            <div
+                                class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-slate-100">
+                                <div>
+                                    <span
+                                        class="text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-mpesa-light text-mpesa-dark">Live
+                                        Hostel Inventory</span>
+                                    <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-1.5">Book a
+                                        Vacant
+                                        Room
+                                        or Bed Space</h2>
+                                    <p class="text-xs sm:text-sm text-slate-600 mt-0.5">Select a vacant unit
+                                        below and
+                                        reserve it instantly via M-Pesa deposit. Your account updates
+                                        immediately.</p>
+                                </div>
+
+                                <!-- Filters -->
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <select id="vacCampusFilter" onchange="renderVacancyInventory()"
+                                        class="text-xs font-bold bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-slate-700 focus:outline-none focus:border-mpesa">
+                                        <option value="ALL">All Hostels (JKUAT & KU)</option>
+                                        <option value="JKUAT">JKUAT — Juja Gate C</option>
+                                        <option value="KU">KU — Kahawa Wendani</option>
+                                    </select>
+                                    <select id="vacTypeFilter" onchange="renderVacancyInventory()"
+                                        class="text-xs font-bold bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-slate-700 focus:outline-none focus:border-mpesa">
+                                        <option value="ALL">All Room Types</option>
+                                        <option value="Single">Standard Single</option>
+                                        <option value="Bedsitter">En-Suite Bedsitter</option>
+                                        <option value="Shared">Shared Dual Studio (Bed)</option>
+                                        <option value="1-Bedroom">Executive 1-Bedroom</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Vacant Rooms Grid -->
+                            <div id="vacancyRoomsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
+                                <!-- Populated dynamically by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Inline M-Pesa Reservation Confirmation Box (Appears when tenant selects a room) -->
+                        <div id="vacancyBookingDrawer"
+                            class="hidden bg-slate-900 text-white rounded-2xl p-6 shadow-xl border border-slate-700">
+                            <div class="flex items-start justify-between gap-4 pb-4 border-b border-slate-800">
+                                <div>
+                                    <span class="text-[11px] font-extrabold uppercase tracking-wider text-mpesa">Instant
+                                        Room Lock & M-Pesa Deposit</span>
+                                    <h3 id="vacBookRoomTitle" class="text-lg sm:text-xl font-extrabold mt-1">
+                                        Reserve
+                                        Unit
+                                        A-08 — En-Suite Bedsitter</h3>
+                                    <p id="vacBookRoomMeta" class="text-xs text-slate-400 mt-0.5">JKUAT Juja
+                                        Gate C •
+                                        Block
+                                        A, 1st Floor • Account Ref: JJA-A08</p>
+                                </div>
+                                <button onclick="closeVacancyBookingDrawer()"
+                                    class="text-slate-400 hover:text-white p-1 cursor-pointer">
+                                    <i data-lucide="x" class="w-5 h-5"></i>
+                                </button>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-12 gap-5 mt-5 items-end">
+                                <div class="md:col-span-4">
+                                    <label class="block text-xs font-bold text-slate-300 mb-1.5">Billing
+                                        Plan</label>
+                                    <select id="vacBookPlan" onchange="recalculateVacancyDeposit()"
+                                        class="w-full text-xs sm:text-sm font-bold bg-slate-800 border border-slate-700 text-white rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-mpesa">
+                                        <option value="monthly">Monthly Plan (1 Mo Rent + Deposit)</option>
+                                        <option value="semester">Semester Plan (4 Mos Discounted + Deposit)
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="md:col-span-4">
+                                    <label class="block text-xs font-bold text-slate-300 mb-1.5">M-Pesa Number
+                                        (Student
+                                        or
+                                        Parent)</label>
+                                    <input type="tel" id="vacBookPhone" placeholder="2547XXXXXXXX" maxlength="12"
+                                        class="w-full font-mono text-sm font-bold bg-slate-800 border border-slate-700 text-white rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-mpesa">
+                                </div>
+                                <div class="md:col-span-4">
+                                    <button id="vacConfirmStkBtn" onclick="executeVacancyMpesaBooking()"
+                                        class="w-full py-2.5 px-4 rounded-xl bg-mpesa hover:bg-mpesa-dark text-white text-xs sm:text-sm font-extrabold shadow-lg transition-all cursor-pointer">
+                                        Pay Deposit & Lock Room (<span id="vacBookTotalLabel">KES 17,000</span>)
+                                    </button>
+                                </div>
+                            </div>
+                            <p id="vacBookBreakdownNote" class="text-[11px] text-slate-400 mt-3">
+                                Includes 1st Month Rent (KES 8,500) + 100% Refundable Security Deposit (KES
+                                8,500). Zero
+                                agent fees.
+                            </p>
+                        </div>
+                    </div>
+
+
+                    <!-- ================================================= -->
+                    <!-- TAB 3: M-PESA PAYMENTS CENTER                     -->
+                    <!-- ================================================= -->
+                    <div id="tenantPanel-payments" class="tenant-panel hidden space-y-6">
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                            <!-- Left: STK Push Form (7 cols) -->
+                            <div
+                                class="lg:col-span-7 bg-white border border-slate-200 rounded-2xl p-6 shadow-2xs space-y-5">
+                                <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                                    <div class="flex items-center gap-2.5">
+                                        <span
+                                            class="bg-mpesa text-white font-black text-xs px-2.5 py-1 rounded-lg">M-PESA</span>
+                                        <div>
+                                            <h2 class="text-lg font-extrabold text-slate-900">Lipa Na M-Pesa
+                                                Express
+                                                (STK
+                                                Push)</h2>
+                                            <p class="text-xs text-slate-500">Instant PIN prompt to Student or
+                                                Parent/Guardian phone</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Form View -->
+                                <div id="portalStkFormBox" class="space-y-4">
+                                    <!-- Who is paying selector -->
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Who is
+                                            paying
+                                            today?</label>
+                                        <div class="grid grid-cols-2 gap-2.5">
+                                            <button type="button" id="payerStudentBtn" onclick="setPayerRole('student')"
+                                                class="py-2.5 px-3 rounded-xl border-2 border-mpesa bg-mpesa-light/40 text-slate-900 text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer">
+                                                <i data-lucide="user" class="w-4 h-4 text-mpesa-dark"></i>
+                                                <span>Student Phone</span>
+                                            </button>
+                                            <button type="button" id="payerParentBtn" onclick="setPayerRole('parent')"
+                                                class="py-2.5 px-3 rounded-xl border border-slate-200 bg-white text-slate-600 text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-slate-50 cursor-pointer">
+                                                <i data-lucide="users" class="w-4 h-4 text-slate-500"></i>
+                                                <span>Parent / Guardian Phone</span>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div>
+                                            <label for="payMpesaPhone"
+                                                class="block text-xs font-bold text-slate-700 mb-1">M-Pesa Phone
+                                                Number
+                                                *</label>
+                                            <input type="tel" id="payMpesaPhone" value="254712345678"
+                                                placeholder="2547XXXXXXXX" maxlength="12"
+                                                class="w-full font-mono text-sm font-bold border-2 border-slate-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-mpesa">
+                                            <p id="payPhoneError" class="hidden text-[11px] text-red-600 mt-1">
+                                                Use
+                                                format
+                                                2547XXXXXXXX or 2541XXXXXXXX</p>
+                                        </div>
+                                        <div>
+                                            <label for="payMpesaAmount"
+                                                class="block text-xs font-bold text-slate-700 mb-1">Amount (KES)
+                                                *</label>
+                                            <input type="number" id="payMpesaAmount" value="4500" min="100" max="200000"
+                                                class="w-full font-mono text-sm font-bold border-2 border-slate-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-mpesa">
+                                        </div>
+                                    </div>
+
+                                    <!-- Quick Amount Presets -->
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <span class="text-[11px] font-bold text-slate-400">Quick Fill:</span>
+                                        <button type="button" onclick="setQuickPayAmount('balance')"
+                                            class="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 cursor-pointer">
+                                            Current Due Balance
+                                        </button>
+                                        <button type="button" onclick="setQuickPayAmount('monthly')"
+                                            class="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer">
+                                            Full Monthly Rent
+                                        </button>
+                                        <button type="button" onclick="setQuickPayAmount('semester')"
+                                            class="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-mpesa-light text-mpesa-dark hover:bg-mpesa-border/50 cursor-pointer">
+                                            Full Semester (4 Mos)
+                                        </button>
+                                    </div>
+
+                                    <div>
+                                        <label for="payDescription"
+                                            class="block text-xs font-bold text-slate-700 mb-1">Payment Note /
+                                            Semester
+                                            Label</label>
+                                        <input type="text" id="payDescription"
+                                            value="November 2026 Rent & Water Balance"
+                                            class="w-full text-xs sm:text-sm border border-slate-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-mpesa">
+                                    </div>
+
+                                    <button type="button" onclick="initiateTenantStkPush()"
+                                        class="w-full py-3.5 px-5 rounded-xl bg-mpesa hover:bg-mpesa-dark text-white text-sm font-extrabold shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer">
+                                        <i data-lucide="send" class="w-4 h-4"></i>
+                                        <span>Send Safaricom M-Pesa Prompt</span>
+                                    </button>
+                                </div>
+
+                                <!-- Processing State -->
+                                <div id="portalStkProcessingBox" class="hidden py-8 text-center space-y-4">
+                                    <div class="relative w-16 h-16 mx-auto flex items-center justify-center">
+                                        <span class="absolute inset-0 rounded-full bg-mpesa/30 animate-ping"></span>
+                                        <div
+                                            class="relative w-14 h-14 rounded-full bg-mpesa text-white font-black text-sm flex items-center justify-center shadow">
+                                            STK
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-extrabold text-slate-900 text-base">Enter M-Pesa PIN on
+                                            Phone
+                                        </h3>
+                                        <p class="text-xs text-slate-500 mt-1">
+                                            Safaricom prompt sent to <strong id="portalStkTargetPhone"
+                                                class="font-mono text-slate-900">254712345678</strong> for
+                                            <strong id="portalStkTargetAmt" class="text-mpesa-dark">KES
+                                                4,500</strong>...
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Success State -->
+                                <div id="portalStkSuccessBox"
+                                    class="hidden py-6 text-center space-y-4 bg-mpesa-light/40 rounded-2xl border border-mpesa-border p-5">
+                                    <div
+                                        class="w-12 h-12 rounded-full bg-mpesa text-white mx-auto flex items-center justify-center">
+                                        <i data-lucide="check" class="w-6 h-6"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-extrabold text-slate-900 text-lg">Payment Confirmed &
+                                            Receipted!
+                                        </h3>
+                                        <p class="text-xs text-slate-600 mt-1">
+                                            M-Pesa Code: <strong id="portalStkReceiptCode"
+                                                class="font-mono text-slate-900 text-sm">UKI8X92P4L</strong> •
+                                            Credited
+                                            to
+                                            <strong id="portalStkCreditedRef">JJA-B14</strong>
+                                        </p>
+                                    </div>
+                                    <div class="flex flex-wrap justify-center gap-2.5 pt-1">
+                                        <button onclick="resetTenantStkBox()"
+                                            class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer">
+                                            Make Another Payment
+                                        </button>
+                                        <button onclick="switchTenantTab('receipts')"
+                                            class="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 cursor-pointer">
+                                            View & Print Receipt →
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right: Manual Paybill & HELB / Parent Instructions (5 cols) -->
+                            <div class="lg:col-span-5 space-y-4">
+                                <div class="bg-slate-900 text-white rounded-2xl p-6 shadow-md space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <span
+                                            class="text-xs font-extrabold uppercase tracking-wider text-mpesa">Alternative
+                                            Manual Paybill</span>
+                                        <i data-lucide="shield-check" class="w-5 h-5 text-mpesa"></i>
+                                    </div>
+                                    <p class="text-xs text-slate-300 leading-relaxed">
+                                        If a parent or sponsor prefers paying directly from their M-Pesa menu or
+                                        bank
+                                        app,
+                                        share these exact details:
+                                    </p>
+                                    <div
+                                        class="bg-slate-800 border border-slate-700 rounded-xl p-4 space-y-2.5 text-xs">
+                                        <div class="flex justify-between">
+                                            <span class="text-slate-400">Business / Paybill No:</span>
+                                            <span class="font-mono font-black text-base text-white">4092184</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-slate-400">Account Number:</span>
+                                            <span id="paybillAccountRefDisplay"
+                                                class="font-mono font-black text-base text-mpesa">JJA-B14</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-slate-400">Account Name:</span>
+                                            <span class="font-bold text-white">CAMPUSNEST STUDENT HOUSING</span>
+                                        </div>
+                                    </div>
+                                    <button onclick="copyPaybillDetails()"
+                                        class="w-full py-2.5 px-4 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-xs font-bold text-white transition-colors flex items-center justify-center gap-2 cursor-pointer">
+                                        <i data-lucide="copy" class="w-4 h-4"></i>
+                                        <span>Copy Paybill & Account Ref for Parent</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- ================================================= -->
+                    <!-- TAB 4: OFFICIAL RECEIPTS TAB                      -->
+                    <!-- ================================================= -->
+                    <div id="tenantPanel-receipts" class="tenant-panel hidden space-y-6">
+                        <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-2xs">
+                            <div
+                                class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                                <div>
+                                    <h2 class="text-xl font-extrabold text-slate-900">Official M-Pesa Rent &
+                                        Deposit
+                                        Receipts</h2>
+                                    <p class="text-xs text-slate-500 mt-0.5">Download or print stamped
+                                        CampusNest Kenya
+                                        receipts for HELB, parents, or personal records.</p>
+                                </div>
+                                <span
+                                    class="text-xs font-bold px-3 py-1 rounded-full bg-mpesa-light text-mpesa-dark self-start sm:self-auto">
+                                    Auto-Reconciled via Daraja
+                                </span>
+                            </div>
+
+                            <div class="overflow-x-auto mt-4">
+                                <table class="w-full text-left text-xs">
+                                    <thead
+                                        class="bg-slate-50 border-y border-slate-200 text-slate-500 font-bold uppercase">
+                                        <tr>
+                                            <th class="py-3 px-3">M-Pesa Code</th>
+                                            <th class="py-3 px-3">Date & Time</th>
+                                            <th class="py-3 px-3">Description</th>
+                                            <th class="py-3 px-3">Payer Phone</th>
+                                            <th class="py-3 px-3 text-right">Amount</th>
+                                            <th class="py-3 px-3 text-right">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tenantReceiptsTableBody" class="divide-y divide-slate-100">
+                                        <!-- Populated dynamically by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- ================================================= -->
+                    <!-- TAB 5: COMPLAINTS & MAINTENANCE (LANDLORD/CARETAKER) -->
+                    <!-- ================================================= -->
+                    <div id="tenantPanel-complaints" class="tenant-panel hidden space-y-6">
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                            <!-- Left: Submit Complaint / Repair Form (6 cols) -->
+                            <div class="lg:col-span-6 bg-white border border-slate-200 rounded-2xl p-6 shadow-2xs">
+                                <h2 class="text-lg font-extrabold text-slate-900">Send Complaint or Maintenance
+                                    Request
+                                </h2>
+                                <p class="text-xs text-slate-500 mt-1 mb-5">Route urgent room repairs directly
+                                    to the
+                                    Resident Caretaker or escalate billing/security issues to the Landlord.</p>
+
+                                <form id="tenantComplaintForm" onsubmit="submitTenantComplaint(event)"
+                                    class="space-y-4">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Send To
+                                            *</label>
+                                        <div class="grid grid-cols-2 gap-2.5">
+                                            <label class="cursor-pointer">
+                                                <input type="radio" name="complaintRecipient"
+                                                    value="Resident Caretaker (Mr. Mwangi)" checked
+                                                    class="peer sr-only">
+                                                <div
+                                                    class="p-3 rounded-xl border border-slate-200 peer-checked:border-mpesa peer-checked:bg-mpesa-light/40 text-xs transition-all">
+                                                    <p class="font-extrabold text-slate-900">Resident Caretaker
+                                                    </p>
+                                                    <p class="text-[11px] text-slate-500 mt-0.5">Water, Wi-Fi,
+                                                        locks,
+                                                        electrical</p>
+                                                </div>
+                                            </label>
+                                            <label class="cursor-pointer">
+                                                <input type="radio" name="complaintRecipient"
+                                                    value="Landlord & Management" class="peer sr-only">
+                                                <div
+                                                    class="p-3 rounded-xl border border-slate-200 peer-checked:border-slate-900 peer-checked:bg-slate-100 text-xs transition-all">
+                                                    <p class="font-extrabold text-slate-900">Landlord / Admin
+                                                    </p>
+                                                    <p class="text-[11px] text-slate-500 mt-0.5">Billing, noise,
+                                                        security,
+                                                        lease</p>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <div>
+                                            <label for="compCategory"
+                                                class="block text-xs font-bold text-slate-700 mb-1">Issue
+                                                Category</label>
+                                            <select id="compCategory"
+                                                class="w-full text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-mpesa">
+                                                <option value="Plumbing & Water">Plumbing & Water</option>
+                                                <option value="Wi-Fi & Internet">Wi-Fi & Internet</option>
+                                                <option value="Electrical & Sockets">Electrical & Sockets
+                                                </option>
+                                                <option value="Door Lock / Window">Door Lock / Window</option>
+                                                <option value="Noise / Neighbor Conduct">Noise / Neighbor
+                                                    Conduct
+                                                </option>
+                                                <option value="Rent / M-Pesa Billing">Rent / M-Pesa Billing
+                                                </option>
+                                                <option value="Security Concern">Security Concern</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label for="compUrgency"
+                                                class="block text-xs font-bold text-slate-700 mb-1">Urgency
+                                                Level</label>
+                                            <select id="compUrgency"
+                                                class="w-full text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-mpesa">
+                                                <option value="Low">Low (Routine Check)</option>
+                                                <option value="Medium" selected>Medium (Within 24 Hrs)</option>
+                                                <option value="Urgent">Urgent (Immediate Attention)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label for="compSubject"
+                                            class="block text-xs font-bold text-slate-700 mb-1">Subject
+                                            *</label>
+                                        <input type="text" id="compSubject" required
+                                            placeholder="e.g. Kitchen sink tap dripping / Weak Wi-Fi on 2nd floor"
+                                            class="w-full text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-mpesa">
+                                    </div>
+
+                                    <div>
+                                        <label for="compDetails"
+                                            class="block text-xs font-bold text-slate-700 mb-1">Detailed
+                                            Description
+                                            *</label>
+                                        <textarea id="compDetails" rows="3" required
+                                            placeholder="Describe the issue and best time for the caretaker to access your room..."
+                                            class="w-full text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-mpesa"></textarea>
+                                    </div>
+
+                                    <button type="submit"
+                                        class="w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-bold shadow-sm transition-colors flex items-center justify-center gap-2 cursor-pointer">
+                                        <i data-lucide="send" class="w-4 h-4 text-mpesa"></i>
+                                        <span>Submit Ticket to Caretaker / Landlord</span>
+                                    </button>
+                                </form>
+                            </div>
+
+                            <!-- Right: Live Ticket Tracker Feed (6 cols) -->
+                            <div
+                                class="lg:col-span-6 bg-white border border-slate-200 rounded-2xl p-6 shadow-2xs space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="text-lg font-extrabold text-slate-900">Your Submitted Tickets
+                                    </h3>
+                                    <span class="text-xs font-bold text-slate-500">Auto-notifies via SMS</span>
+                                </div>
+
+                                <div id="tenantTicketsFeed" class="space-y-3">
+                                    <!-- Populated dynamically by JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ================================================= -->
+                    <!-- TAB 6: MANAGEMENT DASHBOARD & DATABASE             -->
+                    <!-- ================================================= -->
+                    <div id="tenantPanel-management" class="tenant-panel hidden space-y-6">
+                        <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-2xs">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 border-b border-slate-100">
+                                <div>
+                                    <span class="text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700">Landlord Tools</span>
+                                    <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-1.5">Manage Dashboard & Database</h2>
+                                    <p class="text-xs text-slate-500 mt-1">Update units, tenant details, payments, and maintenance records.</p>
+                                </div>
+                                <button type="button" onclick="exportCampusDatabase()" class="px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold cursor-pointer">Export Database Backup</button>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5">
+                                <div class="rounded-xl border border-slate-200 bg-slate-50 p-4"><p class="text-[11px] font-bold uppercase text-slate-400">Units in Database</p><p id="managementUnitCount" class="text-2xl font-black text-slate-900 mt-1">0</p></div>
+                                <div class="rounded-xl border border-slate-200 bg-slate-50 p-4"><p class="text-[11px] font-bold uppercase text-slate-400">Payments Recorded</p><p id="managementPaymentCount" class="text-2xl font-black text-slate-900 mt-1">0</p></div>
+                                <div class="rounded-xl border border-slate-200 bg-slate-50 p-4"><p class="text-[11px] font-bold uppercase text-slate-400">Open Tickets</p><p id="managementTicketCount" class="text-2xl font-black text-slate-900 mt-1">0</p></div>
+                            </div>
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-5">
+                                <div class="rounded-2xl border border-slate-200 p-4">
+                                    <h3 class="font-extrabold text-slate-900">Unit & Inventory Editor</h3>
+                                    <form id="managementUnitForm" onsubmit="saveManagementUnit(event)" class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <select id="managementUnitId" onchange="loadManagementUnit()" class="text-xs border border-slate-200 rounded-xl px-3 py-2.5"></select>
+                                        <select id="managementUnitStatus" class="text-xs border border-slate-200 rounded-xl px-3 py-2.5"><option value="Vacant">Vacant</option><option value="Reserved">Reserved</option><option value="Booked">Booked</option></select>
+                                        <input id="managementRoomCode" required class="text-xs border border-slate-200 rounded-xl px-3 py-2.5" placeholder="Room / bed code">
+                                        <input id="managementAccountRef" required class="text-xs font-mono border border-slate-200 rounded-xl px-3 py-2.5" placeholder="M-Pesa account reference">
+                                        <input id="managementMonthlyPrice" type="number" min="0" required class="text-xs border border-slate-200 rounded-xl px-3 py-2.5" placeholder="Monthly rent">
+                                        <input id="managementSemesterPrice" type="number" min="0" required class="text-xs border border-slate-200 rounded-xl px-3 py-2.5" placeholder="Semester rent">
+                                        <button type="submit" class="sm:col-span-2 py-2.5 rounded-xl bg-mpesa hover:bg-mpesa-dark text-white text-xs font-bold">Save Unit Changes</button>
+                                    </form>
+                                </div>
+                                <div class="rounded-2xl border border-slate-200 p-4">
+                                    <h3 class="font-extrabold text-slate-900">Tenant & Balance Editor</h3>
+                                    <form id="managementTenantForm" onsubmit="saveManagementTenant(event)" class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <input id="managementTenantName" required class="text-xs border border-slate-200 rounded-xl px-3 py-2.5" placeholder="Tenant name">
+                                        <input id="managementTenantPhone" required pattern="254(7|1)[0-9]{8}" class="text-xs font-mono border border-slate-200 rounded-xl px-3 py-2.5" placeholder="2547XXXXXXXX">
+                                        <input id="managementAccountBalance" type="number" min="0" required class="text-xs border border-slate-200 rounded-xl px-3 py-2.5" placeholder="Balance due">
+                                        <input id="managementMeterNumber" class="text-xs font-mono border border-slate-200 rounded-xl px-3 py-2.5" placeholder="Meter number">
+                                        <select id="managementLeaseStatus" class="sm:col-span-2 text-xs border border-slate-200 rounded-xl px-3 py-2.5"><option value="active">Active Lease</option><option value="pending">Pending Room Booking</option></select>
+                                        <button type="submit" class="sm:col-span-2 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold">Save Tenant & Balance</button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-5">
+                                <div class="rounded-2xl border border-slate-200 p-4"><h3 class="font-extrabold text-slate-900">Database Records</h3><div id="managementRecordList" class="mt-3 space-y-2 max-h-72 overflow-y-auto"></div></div>
+                                <div class="rounded-2xl border border-slate-200 p-4"><div class="flex items-center justify-between"><h3 class="font-extrabold text-slate-900">Maintenance Tickets</h3><button type="button" onclick="renderManagementPanel()" class="text-xs font-bold text-mpesa-dark">Refresh</button></div><div id="managementTicketList" class="mt-3 space-y-2 max-h-72 overflow-y-auto"></div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+        <!-- END SURFACE B: FULL STUDENT TENANT PORTAL DASHBOARD -->
+
+        <!-- ========================================================= -->
+        <!-- SURFACE C: LANDLORD MANAGEMENT PAGE                       -->
+        <!-- ========================================================= -->
+        <section id="landlordDashboardView" class="hidden flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+            <div class="bg-slate-900 text-white rounded-3xl p-5 sm:p-6 mb-6 shadow-lg flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-mpesa text-white font-black flex items-center justify-center shadow">
+                        <i data-lucide="building-2" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <h1 class="text-lg sm:text-2xl font-extrabold tracking-tight">Landlord Management Page</h1>
+                            <span class="text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-mpesa/20 text-mpesa border border-mpesa/30">Admin Access</span>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-300 mt-1">CampusNest Kenya • Property, tenant, payment, and maintenance control</p>
+                    </div>
+                </div>
+                <button onclick="logoutLandlord()" class="inline-flex items-center justify-center gap-1.5 bg-white/10 hover:bg-white/15 border border-white/15 text-white text-xs font-bold px-4 py-2.5 rounded-xl">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                    <span>Exit Landlord Page</span>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <div class="bg-white border border-slate-200 rounded-2xl p-5"><p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Units</p><p id="landlordTotalUnits" class="text-2xl font-black text-slate-900 mt-1">0</p></div>
+                <div class="bg-white border border-slate-200 rounded-2xl p-5"><p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Vacant Units</p><p id="landlordVacantUnits" class="text-2xl font-black text-mpesa-dark mt-1">0</p></div>
+                <div class="bg-white border border-slate-200 rounded-2xl p-5"><p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Payments Recorded</p><p id="landlordPaymentCount" class="text-2xl font-black text-blue-700 mt-1">0</p></div>
+                <div class="bg-white border border-slate-200 rounded-2xl p-5"><p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Open Tickets</p><p id="landlordTicketCount" class="text-2xl font-black text-amber-700 mt-1">0</p></div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <aside class="lg:col-span-3 bg-white border border-slate-200 rounded-2xl p-2.5 shadow-2xs h-fit">
+                    <nav class="flex lg:flex-col gap-1.5 overflow-x-auto no-scrollbar">
+                        <button id="landlordTab-overview" onclick="switchLandlordTab('overview')" class="landlord-tab-btn shrink-0 w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-slate-900 text-white"><i data-lucide="layout-dashboard" class="w-4 h-4 text-mpesa"></i><span>Overview</span></button>
+                        <button id="landlordTab-units" onclick="switchLandlordTab('units')" class="landlord-tab-btn shrink-0 w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-100"><i data-lucide="building" class="w-4 h-4 text-mpesa-dark"></i><span>Units & Inventory</span></button>
+                        <button id="landlordTab-tenants" onclick="switchLandlordTab('tenants')" class="landlord-tab-btn shrink-0 w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-100"><i data-lucide="users" class="w-4 h-4 text-blue-600"></i><span>Tenants & Balances</span></button>
+                        <button id="landlordTab-tickets" onclick="switchLandlordTab('tickets')" class="landlord-tab-btn shrink-0 w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-100"><i data-lucide="wrench" class="w-4 h-4 text-amber-600"></i><span>Maintenance</span></button>
+                    </nav>
+                </aside>
+
+                <div class="lg:col-span-9 space-y-6">
+                    <div id="landlordPanel-overview" class="landlord-panel space-y-6">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div class="bg-white border border-slate-200 rounded-2xl p-5"><h2 class="font-extrabold text-slate-900">Recent Payments</h2><div id="landlordRecentPayments" class="mt-4 space-y-2"></div></div>
+                            <div class="bg-white border border-slate-200 rounded-2xl p-5"><h2 class="font-extrabold text-slate-900">Latest Maintenance Requests</h2><div id="landlordRecentTickets" class="mt-4 space-y-2"></div></div>
+                        </div>
+                    </div>
+
+                    <div id="landlordPanel-units" class="landlord-panel hidden bg-white border border-slate-200 rounded-2xl p-5 sm:p-6">
+                        <div class="flex items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                            <div><h2 class="text-lg font-extrabold text-slate-900">Units & Inventory</h2><p class="text-xs text-slate-500 mt-1">Edit room status, account reference, and rental prices.</p></div>
+                        </div>
+                        <div id="landlordUnitsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5"></div>
+                    </div>
+
+                    <div id="landlordPanel-tenants" class="landlord-panel hidden bg-white border border-slate-200 rounded-2xl p-5 sm:p-6">
+                        <h2 class="text-lg font-extrabold text-slate-900 pb-4 border-b border-slate-100">Tenant & Balance Management</h2>
+                        <form onsubmit="saveLandlordTenant(event)" class="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <input id="landlordTenantName" required class="text-xs border border-slate-200 rounded-xl px-3 py-2.5" placeholder="Tenant name">
+                            <input id="landlordTenantPhone" required pattern="254(7|1)[0-9]{8}" class="text-xs font-mono border border-slate-200 rounded-xl px-3 py-2.5" placeholder="2547XXXXXXXX">
+                            <input id="landlordTenantBalance" type="number" min="0" required class="text-xs border border-slate-200 rounded-xl px-3 py-2.5" placeholder="Outstanding balance">
+                            <input id="landlordTenantMeter" class="text-xs font-mono border border-slate-200 rounded-xl px-3 py-2.5" placeholder="Meter number">
+                            <select id="landlordTenantLease" class="sm:col-span-2 text-xs border border-slate-200 rounded-xl px-3 py-2.5"><option value="active">Active Lease</option><option value="pending">Pending Room Booking</option></select>
+                            <button type="submit" class="sm:col-span-2 py-3 rounded-xl bg-mpesa hover:bg-mpesa-dark text-white text-xs font-bold">Save Tenant Details</button>
+                        </form>
+                        <div id="landlordTenantDetails" class="mt-5"></div>
+                    </div>
+
+                    <div id="landlordPanel-tickets" class="landlord-panel hidden bg-white border border-slate-200 rounded-2xl p-5 sm:p-6">
+                        <div class="flex items-center justify-between pb-4 border-b border-slate-100"><h2 class="text-lg font-extrabold text-slate-900">Maintenance & Complaints</h2><button onclick="renderLandlordDashboard()" class="text-xs font-bold text-mpesa-dark">Refresh</button></div>
+                        <div id="landlordTicketsList" class="mt-4 space-y-3"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- END SURFACE C: LANDLORD MANAGEMENT PAGE -->
+
+
+        <!-- ========================================================= -->
+        <!-- FOOTER                                                    -->
+        <!-- ========================================================= -->
+    <footer class="bg-slate-950 text-slate-400 border-t border-slate-800 mt-auto">
+        <div
+            class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+            <div class="flex items-center gap-2">
+                <span class="font-extrabold text-white text-sm">CampusNest Kenya</span>
+                <span>•</span>
+                <span>Verified</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <span><strong class="text-white"></strong></span>
+                <span>•</span>
+                <span></span>
+    
+            </div>
+    
+            <section class="section contact" id="contact">
+                <h1>Contact Me</h1>
+                <div class="links-grid">
+                    <a href="https://wa.me/245706407311" target="_blank" rel="noopener">WhatsApp</a>
+                    <a href="https://wa.me/245710636502" target="_blank" rel="noopener">Wa Business</a>
+                    <a href="https://www.instagram.com/micedujrn" target="_blank" rel="noopener">Instagram</a>
+                    <a href="https://www.facebook.com/profile.php?id=61578212519644" target="_blank"
+                        rel="noopener">Facebook</a>
+                    <a href="https://www.tiktok.com/@edujrn254" target="_blank" rel="noopener">TikTok</a>
+                    <a href="mailto:edujrnmic@gmail.com">Email</a>
+            </section>
+            <div class="logo">EDR<span>.</span></div>
+            <p>© <span id="year"></span> </p><a href="#home">Back to
+                top
+            </a>
+    </footer>
+
+
+        <!-- ========================================================= -->
+        <!-- MODAL 1: TENANT AUTHENTICATION (LOGIN & SIGN UP)          -->
+        <!-- ========================================================= -->
+        <div id="authModal"
+            class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/75 backdrop-blur-xs p-4">
+            <div
+                class="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden max-h-[92vh] flex flex-col">
+                <!-- Modal Header -->
+                <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between shrink-0">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-xl bg-mpesa flex items-center justify-center font-black text-white">
+                            C
+                        </div>
+                        <div>
+                            <h3 class="font-extrabold text-base">CampusNest Student Portal</h3>
+                            <p class="text-[11px] text-slate-400">Book rooms, pay rent via M-Pesa & contact
+                                caretaker
+                            </p>
+                        </div>
+                    </div>
+                    <button onclick="closeAuthModal()"
+                        class="text-slate-400 hover:text-white p-1 rounded-lg cursor-pointer">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <!-- Auth Mode Tabs -->
+                <div class="grid grid-cols-2 bg-slate-100 p-1.5 mx-6 mt-5 rounded-xl shrink-0">
+                    <button id="authTabLogin" onclick="switchAuthTab('login')"
+                        class="py-2 rounded-lg text-xs sm:text-sm font-bold bg-white text-slate-900 shadow-2xs transition-all cursor-pointer">
+                        Student Sign In
+                    </button>
+                    <button id="authTabSignup" onclick="switchAuthTab('signup')"
+                        class="py-2 rounded-lg text-xs sm:text-sm font-bold text-slate-600 hover:text-slate-900 transition-all cursor-pointer">
+                        New Student Sign Up
+                    </button>
+                </div>
+
+                <!-- LOGIN FORM PANEL -->
+                <div id="authLoginPanel" class="p-6 overflow-y-auto space-y-4">
+                    <!-- 1-Click Demo Student Login Banner -->
+                    <div
+                        class="p-3.5 rounded-2xl bg-mpesa-light/60 border border-mpesa-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                            <p class="text-xs font-extrabold text-slate-900">Instant Demo Access</p>
+                            <p class="text-[11px] text-slate-600">Faith Wanjiku • JKUAT Juja (Unit B-14)</p>
+                        </div>
+                        <button type="button" onclick="loginDemoStudent()"
+                            class="px-3.5 py-2 rounded-xl bg-mpesa hover:bg-mpesa-dark text-white text-xs font-extrabold shadow-xs transition-colors shrink-0 cursor-pointer">
+                            1-Click Demo Login →
+                        </button>
+                    </div>
+
+                    <form onsubmit="handleStudentLogin(event)" class="space-y-3.5">
+                        <div>
+                            <label for="loginIdentifier" class="block text-xs font-bold text-slate-700 mb-1">Student
+                                Email
+                                or Reg / Phone Number</label>
+                            <input type="text" id="loginIdentifier" required value="faith.wanjiku@students.jkuat.ac.ke"
+                                placeholder="e.g. SCT221-0418/2024 or 254712345678"
+                                class="w-full text-sm border border-slate-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-mpesa">
+                        </div>
+                        <div>
+                            <label for="loginPassword"
+                                class="block text-xs font-bold text-slate-700 mb-1">Password</label>
+                            <input type="password" id="loginPassword" required value="CampusNest2026"
+                                class="w-full text-sm border border-slate-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-mpesa">
+                        </div>
+                        <button type="submit"
+                            class="w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold shadow-sm transition-colors cursor-pointer">
+                            Sign In to Tenant Portal
+                        </button>
+                    </form>
+                </div>
+
+                <!-- SIGN UP FORM PANEL -->
+                <div id="authSignupPanel" class="hidden p-6 overflow-y-auto">
+                    <form onsubmit="handleStudentSignup(event)" class="space-y-3.5">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label for="regFullName" class="block text-xs font-bold text-slate-700 mb-1">Student
+                                    Full
+                                    Name *</label>
+                                <input type="text" id="regFullName" required placeholder="e.g. Kevin Kiprop"
+                                    class="w-full text-xs sm:text-sm border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-mpesa">
+                            </div>
+                            <div>
+                                <label for="regPhone" class="block text-xs font-bold text-slate-700 mb-1">Student M-Pesa
+                                    Phone *</label>
+                                <input type="tel" id="regPhone" required placeholder="2547XXXXXXXX" maxlength="12"
+                                    class="w-full font-mono text-xs sm:text-sm border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-mpesa">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label for="regUniversity"
+                                    class="block text-xs font-bold text-slate-700 mb-1">University
+                                    *</label>
+                                <select id="regUniversity"
+                                    class="w-full text-xs sm:text-sm border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-mpesa">
+                                    <option value="JKUAT Juja">JKUAT (Juja Main Campus)</option>
+                                    <option value="Kenyatta University (KU)">Kenyatta University (KU)</option>
+                                    <option value="Strathmore University">Strathmore University</option>
+                                    <option value="University of Nairobi (UoN)">University of Nairobi (UoN)
+                                    </option>
+                                    <option value="Moi University">Moi University</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="regAdmissionNo"
+                                    class="block text-xs font-bold text-slate-700 mb-1">University
+                                    Reg No. *</label>
+                                <input type="text" id="regAdmissionNo" required placeholder="e.g. ENE211-0092/2026"
+                                    class="w-full font-mono text-xs sm:text-sm border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-mpesa">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label for="regNationalId" class="block text-xs font-bold text-slate-700 mb-1">National
+                                    ID /
+                                    Passport *</label>
+                                <input type="text" id="regNationalId" required placeholder="e.g. 39481022"
+                                    class="w-full font-mono text-xs sm:text-sm border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-mpesa">
+                            </div>
+                            <div>
+                                <label for="regGuardianName" class="block text-xs font-bold text-slate-700 mb-1">Parent
+                                    /
+                                    Guardian Name *</label>
+                                <input type="text" id="regGuardianName" required placeholder="e.g. Mr. Peter Kiprop"
+                                    class="w-full text-xs sm:text-sm border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-mpesa">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label for="regGuardianPhone" class="block text-xs font-bold text-slate-700 mb-1">Parent
+                                    /
+                                    Guardian Phone *</label>
+                                <input type="tel" id="regGuardianPhone" required placeholder="2547XXXXXXXX"
+                                    maxlength="12"
+                                    class="w-full font-mono text-xs sm:text-sm border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-mpesa">
+                            </div>
+                            <div>
+                                <label for="regPassword" class="block text-xs font-bold text-slate-700 mb-1">Create
+                                    Password
+                                    *</label>
+                                <input type="password" id="regPassword" required placeholder="Min 6 characters"
+                                    minlength="6"
+                                    class="w-full text-xs sm:text-sm border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-mpesa">
+                            </div>
+                        </div>
+
+                        <button type="submit"
+                            class="w-full py-3 px-4 rounded-xl bg-mpesa hover:bg-mpesa-dark text-white text-sm font-extrabold shadow-sm transition-colors cursor-pointer">
+                            Create Account & Browse Vacant Rooms →
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ========================================================= -->
+        <!-- MODAL 2: OFFICIAL PRINTABLE RECEIPT VIEWER                -->
+        <!-- ========================================================= -->
+        <div id="receiptModal"
+            class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/75 backdrop-blur-xs p-4">
+            <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden">
+                <div id="printableReceiptArea" class="p-6 sm:p-7 space-y-5">
+                    <!-- Receipt Top Stamp -->
+                    <div class="flex items-start justify-between border-b border-dashed border-slate-300 pb-4">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span
+                                    class="w-7 h-7 rounded-lg bg-slate-900 text-white font-black text-sm flex items-center justify-center">C</span>
+                                <span class="font-extrabold text-slate-900 text-base">CampusNest Kenya</span>
+                            </div>
+                            <p class="text-[11px] text-slate-500 mt-1">Official Student Housing Payment Receipt
+                            </p>
+                            <p class="text-[11px] text-slate-500">Paybill: <strong>4092184</strong> • PIN:
+                                P051928412K
+                            </p>
+                        </div>
+                        <span
+                            class="px-2.5 py-1 rounded-lg bg-mpesa-light text-mpesa-dark font-extrabold text-[11px] uppercase border border-mpesa-border">
+                            PAID • VERIFIED
+                        </span>
+                    </div>
+
+                    <!-- Receipt Metadata -->
+                    <div class="space-y-2 text-xs">
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">M-Pesa Receipt No:</span>
+                            <span id="recModalCode" class="font-mono font-black text-slate-900">UKI8X92P4L</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Date & Time:</span>
+                            <span id="recModalDate" class="font-semibold text-slate-800">18 Nov 2026, 10:14
+                                AM</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Student Tenant:</span>
+                            <span id="recModalStudent" class="font-bold text-slate-900">Faith Wanjiku</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Unit / Account Ref:</span>
+                            <span id="recModalRef" class="font-mono font-bold text-mpesa-dark">JJA-B14</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Payer M-Pesa Phone:</span>
+                            <span id="recModalPhone" class="font-mono text-slate-800">254712345678</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Payment For:</span>
+                            <span id="recModalDesc" class="font-semibold text-slate-800 text-right max-w-[60%]">November
+                                2026 Rent</span>
+                        </div>
+                    </div>
+
+                    <!-- Total Box -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex items-center justify-between">
+                        <span class="text-xs font-bold uppercase text-slate-500">Total Amount Paid</span>
+                        <span id="recModalAmount" class="text-xl font-black text-slate-900">KES 8,500</span>
+                    </div>
+
+                    <p class="text-[10px] text-center text-slate-400">
+                        System-generated electronic receipt reconciled automatically via Safaricom Daraja API.
+                        Valid
+                        without
+                        physical signature.
+                    </p>
+                </div>
+
+                <!-- Modal Footer Buttons (Hidden on Print) -->
+                <div class="no-print px-6 pb-6 flex items-center gap-2.5">
+                    <button onclick="window.print()"
+                        class="flex-1 py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold flex items-center justify-center gap-2 cursor-pointer">
+                        <i data-lucide="printer" class="w-4 h-4"></i>
+                        <span>Print / Save PDF</span>
+                    </button>
+                    <button onclick="closeReceiptModal()"
+                        class="py-2.5 px-4 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </body>
+    <script src="index.js"></script>
+
+</html>
